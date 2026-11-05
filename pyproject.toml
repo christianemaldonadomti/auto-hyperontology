@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "auto-hyperontology"
+version = "0.1.0"
+description = "Universal n-ary mathematical hyperontology RAG framework for local LLMs (Ollama) and Proto-AGI systems."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Apache-2.0" }
+authors = [
+    { name = "Christian Efraín Maldonado-Sifuentes", email = "christianemaldonadomti@gmail.com" }
+]
+keywords = [
+    "hyperontology", 
+    "graphrag", 
+    "hypergraph", 
+    "rag", 
+    "ollama", 
+    "local-llm", 
+    "proto-agi", 
+    "ordinal-cardinal-mixing", 
+    "knowledge-distillation"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
+dependencies = [
+    "requests>=2.28.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "twine>=4.0.0",
+    "build>=0.10.0"
+]
+
+[project.scripts]
+autohyperonto = "auto_hyperontology.cli:main"
+hyper-rag = "auto_hyperontology.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/christianemaldonadomti/auto-hyperontology"
+Repository = "https://github.com/christianemaldonadomti/auto-hyperontology.git"
+Documentation = "https://github.com/christianemaldonadomti/auto-hyperontology#readme"
+Author = "https://github.com/christianemaldonadomti"
