@@ -1,0 +1,103 @@
+{
+  "ontology": {
+    "id": "bio_hypergraph_v1",
+    "name": "Intro Biology: Life & Diversity (Hypergraph Ontology)",
+    "version": "1.0",
+    "description": "Hypergraph ontology derived from the provided biology text. Nodes can have multiple categories. Hyperedges can connect 2+ nodes to encode n-ary relations (e.g., \"property-of-life\", \"level-of-organization\", \"taxonomic-membership\", \"ethical-case\").",
+    "provenance": {
+      "source": "User-provided textbook excerpt",
+      "scope": "Foundations of life, properties of life, organization levels, diversity/taxonomy, branches, ethics"
+    },
+    "conventions": {
+      "node": {
+        "fields": ["id", "name", "categories", "labels", "attributes"]
+      },
+      "hyperedge": {
+        "fields": ["id", "type", "relation", "connects", "constraints", "notes"]
+      },
+      "categories": [
+        "Concept", "Property", "Process", "Discipline", "Level", "TaxonRank", "Domain", "ExampleOrganism", "Structure", "Molecule", "Function", "Environment", "EthicalCase", "LegalConcept", "Evidence", "PopulationUnit"
+      ]
+    }
+  },
+  "nodes": [
+    { "id": "n_life", "name": "Life", "categories": ["Concept"], "labels": ["definition", "foundational"], "attributes": { "definitional_note": "Difficult to define; characterized by a set of shared properties." } },
+    { "id": "n_biology", "name": "Biology", "categories": ["Discipline"], "labels": ["science", "life_sciences"], "attributes": { "studies": ["Life", "Living systems at multiple levels"], "canonical_questions": ["What properties make something alive?", "How do living things function?", "How do we organize diversity?", "How did diversity arise and continue?"] } },
+    { "id": "n_virology", "name": "Virology", "categories": ["Discipline"], "labels": ["subdiscipline"], "attributes": { "studies": ["Viruses"], "note": "Viruses show some but not all properties of life." } },
+    { "id": "n_virus", "name": "Virus", "categories": ["Concept", "ExampleOrganism"], "labels": ["acellular", "obligate_intracellular"], "attributes": { "has_properties_like_life": ["Reproduction (only within host cell)", "Evolution"], "lacks_properties": ["Cellular organization", "Independent metabolism"], "status": "Borderline/contested in definitions of life" } },
+    { "id": "p_order", "name": "Order", "categories": ["Property"], "labels": ["organization", "cellular"], "attributes": { "description": "Hierarchical organization; one or more cells; organelles in eukaryotes." } },
+    { "id": "p_sensitivity", "name": "Sensitivity/Response to Stimuli", "categories": ["Property", "Process"], "labels": ["behavior", "responsiveness"], "attributes": { "examples": ["Phototropism", "Chemotaxis", "Phototaxis"], "polarity": ["positive (toward)", "negative (away)"] } },
+    { "id": "p_reproduction", "name": "Reproduction", "categories": ["Property", "Process"], "labels": ["inheritance", "genetics"], "attributes": { "mechanisms": ["Asexual (cell division)", "Sexual (specialized gametes)"], "carriers": ["DNA (genes)"] } },
+    { "id": "p_adaptation", "name": "Adaptation", "categories": ["Property", "Process"], "labels": ["fitness", "environment_fit"], "attributes": { "driver": "Evolution by natural selection", "note": "Tracks changing environments; enhances reproductive potential" } },
+    { "id": "p_growth_dev", "name": "Growth and Development", "categories": ["Property", "Process"], "labels": ["ontogeny", "genetics"], "attributes": { "governed_by": ["Genes"] } },
+    { "id": "p_regulation", "name": "Regulation/Homeostasis", "categories": ["Property", "Process"], "labels": ["physiology", "stability"], "attributes": { "conditions": ["Temperature", "pH", "Chemical concentrations"], "examples": ["Thermoregulation", "Nutrient transport", "Waste removal"] } },
+    { "id": "p_energy", "name": "Energy Processing", "categories": ["Property", "Process"], "labels": ["metabolism", "bioenergetics"], "attributes": { "sources": ["Photosynthesis (light → chemical)", "Heterotrophy (chemical energy)"] } },
+    { "id": "p_evolution", "name": "Evolution", "categories": ["Property", "Process"], "labels": ["population_genetics", "heredity"], "attributes": { "mechanism": ["Mutation", "Selection"], "scope": "Lineages over time" } },
+    { "id": "lvl_atom", "name": "Atom", "categories": ["Level", "Structure"], "labels": ["matter", "elemental"] },
+    { "id": "lvl_molecule", "name": "Molecule", "categories": ["Level", "Structure"], "labels": ["chemical", "bonded"] },
+    { "id": "lvl_macromolecule", "name": "Macromolecule", "categories": ["Level", "Molecule"], "labels": ["polymer", "biological"], "attributes": { "examples": ["DNA", "Proteins", "Polysaccharides", "Lipids"] } },
+    { "id": "lvl_organelle", "name": "Organelle", "categories": ["Level", "Structure"], "labels": ["subcellular", "membrane_bound"] },
+    { "id": "lvl_cell", "name": "Cell", "categories": ["Level", "Structure"], "labels": ["fundamental_unit"] },
+    { "id": "lvl_tissue", "name": "Tissue", "categories": ["Level"], "labels": ["multicellular"] },
+    { "id": "lvl_organ", "name": "Organ", "categories": ["Level"], "labels": ["composed_of_tissues"] },
+    { "id": "lvl_organsystem", "name": "Organ System", "categories": ["Level"], "labels": ["physiology"] },
+    { "id": "lvl_organism", "name": "Organism", "categories": ["Level"], "labels": ["individual"] },
+    { "id": "lvl_population", "name": "Population", "categories": ["Level", "PopulationUnit"], "labels": ["same_species", "area_specific"], "attributes": { "definition": "Individuals of the same species in a specific area." } },
+    { "id": "lvl_community", "name": "Community", "categories": ["Level"], "labels": ["multiple_populations", "biotic_only"], "attributes": { "definition": "Set of populations inhabiting a particular area." } },
+    { "id": "lvl_ecosystem", "name": "Ecosystem", "categories": ["Level"], "labels": ["biotic_abiotic"], "attributes": { "definition": "Biotic communities + abiotic environment." } },
+    { "id": "lvl_biosphere", "name": "Biosphere", "categories": ["Level"], "labels": ["global"], "attributes": { "definition": "All ecosystems; zones of life on Earth." } },
+    { "id": "cell_prokaryote", "name": "Prokaryote", "categories": ["Concept", "Structure"], "labels": ["cell_type"], "attributes": { "lacks": ["Membrane-bound organelles", "Nucleus"] } },
+    { "id": "cell_eukaryote", "name": "Eukaryote", "categories": ["Concept", "Structure"], "labels": ["cell_type"], "attributes": { "has": ["Membrane-bound organelles", "Nucleus"] } },
+    { "id": "tax_species", "name": "Species", "categories": ["TaxonRank"] },
+    { "id": "tax_genus", "name": "Genus", "categories": ["TaxonRank"] },
+    { "id": "tax_family", "name": "Family", "categories": ["TaxonRank"] },
+    { "id": "tax_order", "name": "Order", "categories": ["TaxonRank"] },
+    { "id": "tax_class", "name": "Class", "categories": ["TaxonRank"] },
+    { "id": "tax_phylum", "name": "Phylum", "categories": ["TaxonRank"] },
+    { "id": "tax_kingdom", "name": "Kingdom", "categories": ["TaxonRank"] },
+    { "id": "tax_domain", "name": "Domain", "categories": ["TaxonRank"] },
+    { "id": "dom_bacteria", "name": "Bacteria", "categories": ["Domain"], "labels": ["prokaryote"] },
+    { "id": "dom_archaea", "name": "Archaea", "categories": ["Domain"], "labels": ["prokaryote", "extremophiles"] },
+    { "id": "dom_eukarya", "name": "Eukarya", "categories": ["Domain"], "labels": ["eukaryote"], "attributes": { "kingdoms": ["Fungi", "Plants", "Animals", "Protists (several)"] } },
+    { "id": "n_linnaeus", "name": "Carl Linnaeus", "categories": ["Evidence"], "labels": ["history_of_science", "taxonomy"], "attributes": { "contributions": ["Hierarchical taxonomy", "Binomial nomenclature"] } },
+    { "id": "n_woese", "name": "Carl Woese", "categories": ["Evidence"], "labels": ["molecular_phylogeny"], "attributes": { "contributions": ["Three-domain system", "rRNA comparative sequencing"] } },
+    { "id": "n_binomial", "name": "Binomial Nomenclature", "categories": ["Concept"], "labels": ["naming_system"], "attributes": { "format": "Genus species (italicized); Genus capitalized; species lowercase" } },
+    { "id": "ex_polar_bear", "name": "Polar Bear", "categories": ["ExampleOrganism"], "labels": ["mammal", "thermoregulation"] },
+    { "id": "ex_condor", "name": "California Condor", "categories": ["ExampleOrganism"], "labels": ["bird", "energy_demanding_flight"] },
+    { "id": "func_thermoregulation", "name": "Thermoregulation", "categories": ["Function", "Process"], "labels": ["homeostasis"] },
+    { "id": "func_photosynthesis", "name": "Photosynthesis", "categories": ["Function", "Process"], "labels": ["energy_conversion"] },
+    { "id": "mol_dna", "name": "DNA", "categories": ["Molecule", "Macromolecule"], "labels": ["genetic_material"] },
+    { "id": "d_molecular_biology", "name": "Molecular Biology", "categories": ["Discipline"], "labels": ["molecules", "regulation"] },
+    { "id": "d_microbiology", "name": "Microbiology", "categories": ["Discipline"], "labels": ["microorganisms"] },
+    { "id": "d_neurobiology", "name": "Neurobiology/Neuroscience", "categories": ["Discipline"], "labels": ["nervous_system", "interdisciplinary"] },
+    { "id": "d_paleontology", "name": "Paleontology", "categories": ["Discipline"], "labels": ["fossils", "history_of_life"] },
+    { "id": "d_zoology", "name": "Zoology", "categories": ["Discipline"], "labels": ["animals"] },
+    { "id": "d_botany", "name": "Botany", "categories": ["Discipline"], "labels": ["plants"] },
+    { "id": "d_biotechnology", "name": "Biotechnology", "categories": ["Discipline"], "labels": ["applications"] },
+    { "id": "d_ecology", "name": "Ecology", "categories": ["Discipline"], "labels": ["interactions", "environment"] },
+    { "id": "d_physiology", "name": "Physiology", "categories": ["Discipline"], "labels": ["function", "cells_tissues_organs"] },
+    { "id": "ethics_bioethics", "name": "Bioethics", "categories": ["Concept", "LegalConcept"], "labels": ["ethics", "research_practice"], "attributes": { "concerns": ["Consent", "Bias", "Safety", "Environmental impact", "Replicability"] } },
+    { "id": "ethics_tuskegee", "name": "Tuskegee Syphilis Study", "categories": ["EthicalCase"], "labels": ["unethical", "no_consent"], "attributes": { "year_start": 1932, "issue": "Non-disclosure; withholding treatment" } },
+    { "id": "ethics_henrietta_lacks", "name": "Henrietta Lacks Case", "categories": ["EthicalCase"], "labels": ["consent", "equity"], "attributes": { "year": 1951, "issue": "Tissue taken without consent; HeLa cell line" } },
+    { "id": "ethics_hela", "name": "HeLa Cell Line", "categories": ["Concept", "Evidence"], "labels": ["immortal_cells", "biomedical_research"], "attributes": { "contributions": ["Polio vaccine", "Cancer research", "AIDS", "Cell aging", "COVID-19 studies"] } }
+  ],
+  "hyperedges": [
+    { "id": "h_bio_studies_life_properties", "type": "StudyRelation", "relation": "studies", "connects": ["n_biology", "n_life", "p_order", "p_sensitivity", "p_reproduction", "p_adaptation", "p_growth_dev", "p_regulation", "p_energy", "p_evolution"], "notes": "Biology addresses what makes something alive and how it functions." },
+    { "id": "h_virus_partial_life_properties", "type": "PropertyCoverage", "relation": "exhibits_subset_of", "connects": ["n_virus", "p_reproduction", "p_evolution"], "constraints": { "missing": ["p_order", "p_energy", "p_regulation", "p_growth_dev", "p_sensitivity"] }, "notes": "Viruses reproduce only inside host cells and evolve; lack other core properties independently." },
+    { "id": "h_levels_chain", "type": "LevelHierarchy", "relation": "levels_of_organization", "connects": ["lvl_atom", "lvl_molecule", "lvl_macromolecule", "mol_dna", "lvl_organelle", "lvl_cell", "lvl_tissue", "lvl_organ", "lvl_organsystem", "lvl_organism", "lvl_population", "lvl_community", "lvl_ecosystem", "lvl_biosphere"], "notes": "Ordered path from smallest to largest with DNA as exemplar macromolecule." },
+    { "id": "h_cell_types", "type": "IsA", "relation": "cell_is_a", "connects": ["lvl_cell", "cell_prokaryote", "cell_eukaryote"], "notes": "Two primary cell categories." },
+    { "id": "h_eukarya_kingdoms", "type": "Membership", "relation": "includes_kingdoms", "connects": ["dom_eukarya"], "notes": "Member kingdoms listed in node attributes." },
+    { "id": "h_three_domains", "type": "TaxonomicFramework", "relation": "domain_system", "connects": ["n_woese", "dom_bacteria", "dom_archaea", "dom_eukarya"], "notes": "Three-domain system via rRNA phylogeny." },
+    { "id": "h_taxonomic_ranks", "type": "RankHierarchy", "relation": "taxonomic_ranks", "connects": ["n_linnaeus", "tax_species", "tax_genus", "tax_family", "tax_order", "tax_class", "tax_phylum", "tax_kingdom", "tax_domain"], "notes": "Eight-level hierarchy species→domain." },
+    { "id": "h_binomial_naming", "type": "Naming", "relation": "binomial_applies_to", "connects": ["n_binomial", "tax_genus", "tax_species"], "notes": "Genus (capitalized) + species (lowercase), italicized." },
+    { "id": "h_homeostasis_thermoregulation", "type": "Supports", "relation": "enables", "connects": ["p_regulation", "func_thermoregulation", "ex_polar_bear"], "notes": "Thermoregulation as a mechanism of homeostasis; example organism." },
+    { "id": "h_energy_processing_examples", "type": "Realization", "relation": "realized_by", "connects": ["p_energy", "func_photosynthesis", "ex_condor"], "notes": "Photosynthesis (producers) and high energy demands for flight (consumers)." },
+    { "id": "h_dna_genetic_roles", "type": "CausalLink", "relation": "genetic_basis_for", "connects": ["mol_dna", "p_reproduction", "p_growth_dev", "p_evolution"], "notes": "Genes carry hereditary instructions; changes (mutations) fuel evolution." },
+    { "id": "h_disciplines_scope", "type": "Scope", "relation": "studies", "connects": ["d_molecular_biology", "mol_dna", "d_microbiology", "cell_prokaryote", "d_neurobiology", "lvl_organsystem", "d_paleontology", "lvl_organism", "d_zoology", "d_botany", "d_biotechnology", "d_ecology", "d_physiology"], "notes": "Each discipline mapped to representative levels/objects." },
+    { "id": "h_ethics_core", "type": "EthicalFramework", "relation": "requires", "connects": ["ethics_bioethics"], "constraints": { "principles": ["Consent", "Do no harm", "Bias mitigation", "Environmental stewardship", "Replicability"] } },
+    { "id": "h_case_tuskegee", "type": "EthicalViolation", "relation": "violates", "connects": ["ethics_tuskegee", "ethics_bioethics"], "notes": "Non-disclosure; withholding proven treatment." },
+    { "id": "h_case_hela", "type": "EthicalViolation", "relation": "conflicts_with", "connects": ["ethics_henrietta_lacks", "ethics_hela", "ethics_bioethics"], "notes": "Tissue use without consent; equity concerns." },
+    { "id": "h_ecological_rollup", "type": "Composition", "relation": "rolls_up_to", "connects": ["lvl_population", "lvl_community", "lvl_ecosystem", "lvl_biosphere"], "notes": "Communities are sets of populations; ecosystems add abiotic factors; biosphere aggregates ecosystems." },
+    { "id": "h_truth_constraints_examples", "type": "TruthConstraints", "relation": "validates_hierarchy_statements", "connects": [{ "node": "lvl_tissue", "note": "exists within organs? FALSE. Tissues compose organs." }, { "node": "lvl_organ", "note": "organs compose organ systems (TRUE)" }, { "node": "lvl_community", "note": "communities exist within ecosystems (TRUE)" }, { "node": "lvl_population", "note": "populations exist within communities (TRUE)" }, { "node": "lvl_organelle", "note": "organelles within cells within tissues (TRUE)" }], "notes": "Encodes evaluators for multiple-choice reasoning tied to hierarchy relations." }
+  ]
+}

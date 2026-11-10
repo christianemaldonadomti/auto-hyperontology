@@ -2,7 +2,7 @@
 Auto-Hyperontology: Core Data Structures & Topological Reification
 Grounded in Set Theory and Hypergraph Theory H = (X, E) where E <= P(X) \\ {empty},
 Basic Formal Ontology (BFO) tiers, Distributed Ontology Language (DOL) morphisms,
-and WebGL Topological Reification (N_limit <= 300).
+and the Proto-AGI v4.0 Forensic JSON Schema (biol1.json & index.php).
 """
 
 from dataclasses import dataclass, field, asdict
@@ -14,7 +14,15 @@ import uuid
 
 def normalize_list_str(val: Any, default: Optional[List[str]] = None) -> List[str]:
     if isinstance(val, list):
-        return [str(x).strip() for x in val if str(x).strip()]
+        out = []
+        for x in val:
+            if isinstance(x, dict):
+                n_val = x.get("node") or x.get("id") or ""
+                if n_val:
+                    out.append(str(n_val).strip())
+            elif str(x).strip():
+                out.append(str(x).strip())
+        return out
     if isinstance(val, str) and val.strip():
         return [val.strip()]
     return list(default) if default else []
@@ -28,8 +36,11 @@ def normalize_roles_dict(roles_val: Any, nodes: List[str]) -> Dict[str, str]:
         for idx, item in enumerate(roles_val):
             nid = nodes[idx] if idx < len(nodes) else f"node_{idx+1}"
             if isinstance(item, dict):
-                for k, v in item.items():
-                    out[str(k)] = str(v)
+                if "node" in item and "note" in item:
+                    out[str(item["node"])] = str(item["note"])
+                else:
+                    for k, v in item.items():
+                        out[str(k)] = str(v)
             else:
                 out[str(item)] = nid
         return out
@@ -76,11 +87,14 @@ def normalize_node_weights(weights_val: Any, nodes: List[str]) -> Dict[str, floa
 class HyperNode:
     """
     Multi-category conceptual vertex x in X within one or more domain ontologies.
+    Includes full `labels` and rich `attributes` (examples, mechanisms, sources, definitional_note)
+    as used in Proto-AGI v4.0 (`biol1.json`).
     """
     id: str
     name: str
     domains: List[str] = field(default_factory=list)
     categories: List[str] = field(default_factory=list)
+    labels: List[str] = field(default_factory=list)
     attributes: Dict[str, Any] = field(default_factory=dict)
     aliases: List[str] = field(default_factory=list)
     provenance: List[Dict[str, Any]] = field(default_factory=list)
@@ -94,13 +108,24 @@ class HyperNode:
         self.name = str(self.name).strip() if self.name else self.id
         self.domains = normalize_list_str(self.domains, default=["General"])
         self.categories = normalize_list_str(self.categories, default=["Concept"])
+        self.labels = normalize_list_str(self.labels)
         self.aliases = normalize_list_str(self.aliases)
         if not isinstance(self.attributes, dict):
-            self.attributes = {"raw_attributes": self.attributes}
+            self.attributes = {"definitional_note": str(self.attributes)}
 
     @property
     def is_boundary(self) -> bool:
-        return len(set(self.domains)) > 1
+        return len(set(self.domains)) > 1 or len(set(self.categories)) > 1
+
+    def to_slice_dict(self) -> Dict[str, Any]:
+        """Formats node in the exact biol1.json schema expected by Proto-AGI v4.0."""
+        return {
+            "id": self.id,
+            "name": self.name,
+            "categories": self.categories,
+            "labels": self.labels if self.labels else self.aliases,
+            "attributes": self.attributes
+        }
 
 
 @dataclass
@@ -118,13 +143,16 @@ class BoundaryNode(HyperNode):
 class HyperEdge:
     """
     An n-ary hyperedge e in E <= P(X) \\ {empty} connecting k >= 2 nodes simultaneously.
-    Automatically normalizes LLM-generated lists/dicts for `node_weights`, `roles`, and `attributes`.
+    Supports both `nodes` and `connects`, `relation_type` (`type`), `relation`, `constraints`, and `notes`.
     """
     id: str
     nodes: List[str]
-    relation_type: str
+    relation_type: str = "StudyRelation"
+    relation: str = "relates"
     roles: Dict[str, str] = field(default_factory=dict)
     node_weights: Dict[str, float] = field(default_factory=dict)
+    constraints: Dict[str, Any] = field(default_factory=dict)
+    notes: str = ""
     confidence: float = 1.0
     domain_scope: List[str] = field(default_factory=list)
     attributes: Dict[str, Any] = field(default_factory=dict)
@@ -136,11 +164,21 @@ class HyperEdge:
         self.id = str(self.id).strip()
         self.nodes = normalize_list_str(self.nodes)
         self.relation_type = str(self.relation_type).strip() if self.relation_type else "AssociatedWith"
+        self.relation = str(self.relation).strip() if self.relation else self.relation_type.lower()
         self.roles = normalize_roles_dict(self.roles, self.nodes)
         self.node_weights = normalize_node_weights(self.node_weights, self.nodes)
         self.domain_scope = normalize_list_str(self.domain_scope)
+        if not isinstance(self.constraints, dict):
+            self.constraints = {"rule": str(self.constraints)}
         if not isinstance(self.attributes, dict):
             self.attributes = {"description": str(self.attributes)}
+        if not self.notes and isinstance(self.attributes, dict):
+            self.notes = str(
+                self.attributes.get("application")
+                or self.attributes.get("evidence_sentence")
+                or self.attributes.get("description")
+                or ""
+            )
         if not isinstance(self.provenance, dict):
             self.provenance = {"raw": str(self.provenance)}
         try:
@@ -151,6 +189,20 @@ class HyperEdge:
     @property
     def cardinality(self) -> int:
         return len(self.nodes)
+
+    def to_slice_dict(self) -> Dict[str, Any]:
+        """Formats hyperedge in the exact biol1.json schema expected by Proto-AGI v4.0."""
+        d: Dict[str, Any] = {
+            "id": self.id,
+            "type": self.relation_type,
+            "relation": self.relation,
+            "connects": self.nodes,
+        }
+        if self.constraints:
+            d["constraints"] = self.constraints
+        if self.notes:
+            d["notes"] = self.notes
+        return d
 
 
 class Hyperontology:
@@ -202,7 +254,11 @@ class Hyperontology:
         for n in self.nodes.values():
             if domain and domain not in n.domains:
                 continue
-            if n.name.lower() == name_lower or any(alias.lower() == name_lower for alias in n.aliases):
+            if (
+                n.name.lower() == name_lower
+                or any(alias.lower() == name_lower for alias in n.aliases)
+                or any(lbl.lower() == name_lower for lbl in n.labels)
+            ):
                 matches.append(n)
         return matches
 
@@ -304,9 +360,15 @@ class Hyperontology:
 
     def to_dict(self) -> Dict[str, Any]:
         return {
+            "ontology": {
+                "id": self.name.lower(),
+                "name": self.name,
+                "version": "4.0"
+            },
             "name": self.name,
             "nodes": [asdict(n) for n in self.nodes.values()],
             "edges": [asdict(e) for e in self.edges.values()],
+            "hyperedges": [e.to_slice_dict() for e in self.edges.values()],
             "boundary_nodes": list(self.boundary_nodes)
         }
 
@@ -322,14 +384,64 @@ class Hyperontology:
 
     @classmethod
     def load_json(cls, filepath: str) -> "Hyperontology":
+        """
+        Loads both our compiled JSON format AND native Proto-AGI v4.0 JSON files like `biol1.json`!
+        """
         with open(filepath, "r", encoding="utf-8") as f:
             data = json.load(f)
-        h = cls(name=data.get("name", "LoadedHyperontology"))
+        ont_meta = data.get("ontology", {})
+        h_name = data.get("name") or ont_meta.get("name") or "LoadedHyperontology"
+        h = cls(name=h_name)
+
         for nd in data.get("nodes", []):
-            if "domain_mappings" in nd or "bridge_degree" in nd:
-                h.add_node(BoundaryNode(**nd))
-            else:
-                h.add_node(HyperNode(**nd))
-        for ed in data.get("edges", []):
-            h.add_edge(HyperEdge(**ed))
+            nid = nd.get("id", "")
+            if not nid:
+                continue
+            node = HyperNode(
+                id=nid,
+                name=nd.get("name", nid),
+                domains=nd.get("domains", ["Biology"]),
+                categories=nd.get("categories", ["Concept"]),
+                labels=nd.get("labels", []),
+                attributes=nd.get("attributes", {}),
+                aliases=nd.get("aliases", nd.get("labels", [])),
+                provenance=nd.get("provenance", []),
+                prime_label=nd.get("prime_label"),
+                connectivity_degree=nd.get("connectivity_degree", 0),
+                raptor_layer=nd.get("raptor_layer", 0)
+            )
+            h.add_node(node)
+
+        # Support both 'edges' and 'hyperedges' (biol1.json uses 'hyperedges' with 'connects')
+        raw_edges = data.get("edges") or data.get("hyperedges") or []
+        for ed in raw_edges:
+            eid = ed.get("id") or f"h_{uuid.uuid4().hex[:6]}"
+            raw_connects = ed.get("nodes") or ed.get("connects") or []
+            connects_ids = normalize_list_str(raw_connects)
+            # Extract inline notes from connects if structured like h_truth_constraints_examples
+            inline_notes = []
+            if isinstance(raw_connects, list):
+                for item in raw_connects:
+                    if isinstance(item, dict) and "note" in item:
+                        inline_notes.append(f"{item.get('node')}: {item.get('note')}")
+            notes_str = ed.get("notes", "")
+            if inline_notes:
+                notes_str = (notes_str + " | " + "; ".join(inline_notes)).strip(" |")
+
+            edge = HyperEdge(
+                id=eid,
+                nodes=connects_ids,
+                relation_type=ed.get("relation_type") or ed.get("type") or "StudyRelation",
+                relation=ed.get("relation") or "relates",
+                roles=ed.get("roles", {}),
+                node_weights=ed.get("node_weights", {}),
+                constraints=ed.get("constraints", {}),
+                notes=notes_str,
+                confidence=ed.get("confidence", 1.0),
+                domain_scope=ed.get("domain_scope", ["Biology"]),
+                attributes=ed.get("attributes", {"notes": notes_str} if notes_str else {})
+            )
+            if len(edge.nodes) >= 1:
+                h.add_edge(edge)
+
         return h

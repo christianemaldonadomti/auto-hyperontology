@@ -126,7 +126,6 @@ class TopologicalIndexer:
         matched_seeds = [nid for nid in edge.nodes if nid in seed_nodes]
         hit_count = len(matched_seeds)
 
-        # Ensure node_weights is a normalized dict even if live LLM returned a list
         weights_dict = (
             edge.node_weights
             if isinstance(edge.node_weights, dict)
@@ -145,7 +144,7 @@ class TopologicalIndexer:
             q_low = query_text.lower()
             rel_low = str(edge.relation_type).lower()
             attrs_dict = edge.attributes if isinstance(edge.attributes, dict) else {}
-            app_low = str(attrs_dict.get("application", "")).lower()
+            app_low = (str(edge.notes) + " " + str(attrs_dict.get("application", ""))).lower()
             if ("prerequisite" in q_low or "foundational" in q_low or "master" in q_low) and "prerequisite" in rel_low:
                 intent_bonus = 8.0
             elif any(w in q_low for w in ["physics", "kinematics", "velocity"]) and "physics" in [str(d).lower() for d in edge.domain_scope]:

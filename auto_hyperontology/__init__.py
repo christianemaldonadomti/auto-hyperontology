@@ -1,7 +1,7 @@
 """
 Auto-Hyperontology Package
 Universal n-ary mathematical hyperontologies, OEIS A320228 Ordinal-Cardinal mixing,
-and Sabidussi-Vizing prime factorization for local LLM reasoning (Proto-AGI).
+Sabidussi-Vizing prime factorization, and Proto-AGI v4.0 Forensic Reasoning.
 """
 
 from auto_hyperontology.core import HyperNode, HyperEdge, BoundaryNode, Hyperontology, normalize_node_weights

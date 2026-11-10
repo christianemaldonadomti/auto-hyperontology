@@ -14,13 +14,10 @@ from auto_hyperontology.topology import TopologicalIndexer
 
 
 class HyperRAG:
-    """
-    Universal Hyperontology RAG & Neuro-Symbolic Compilation Engine.
-    """
     def __init__(
         self,
         model: str = "intuyt:macro",
-        base_url: str = "http://localhost:11434",
+        base_url: str = "https://comic-hugely-eft.ngrok-free.app",
         hyperontology: Optional[Hyperontology] = None,
         default_domain: str = "General",
         temperature: float = 0.1,
@@ -52,7 +49,6 @@ class HyperRAG:
         )
 
     def add_text(self, text: str, domain: Optional[str] = None) -> "HyperRAG":
-        """Ingests unstructured text, partitions into BPE-bounded chunks (theta_max=3000), and compiles into H=(X,E)."""
         target_domain = domain or self.default_domain
         extracted = self.extractor.extract_from_text(text, default_domain=target_domain)
         self._merge_hyperontology(extracted)
@@ -60,14 +56,12 @@ class HyperRAG:
         return self
 
     def add_documents(self, documents: List[str], domain: Optional[str] = None) -> "HyperRAG":
-        """Ingests a list of document strings."""
         for doc in documents:
             if doc.strip():
                 self.add_text(doc, domain=domain)
         return self
 
     def add_file(self, filepath: str, domain: Optional[str] = None) -> "HyperRAG":
-        """Ingests a text or markdown file from disk."""
         if not os.path.exists(filepath):
             raise FileNotFoundError(f"File not found: {filepath}")
         with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
@@ -75,7 +69,6 @@ class HyperRAG:
         return self.add_text(content, domain=domain)
 
     def add_directory(self, dirpath: str, extensions: Tuple[str, ...] = (".txt", ".md", ".json")) -> "HyperRAG":
-        """Recursively ingests all matching files in a directory, assigning subfolder names as domains."""
         if not os.path.isdir(dirpath):
             raise NotADirectoryError(f"Directory not found: {dirpath}")
         for root, _, files in os.walk(dirpath):
@@ -86,24 +79,22 @@ class HyperRAG:
                     self.add_file(full_path, domain=domain_name)
         return self
 
-    def query(self, question: str, max_edges: int = 4) -> ReasoningResult:
-        """
-        Executes the 5-stage Proto-AGI reasoning pipeline with A320228 Ordinal-Cardinal mixing,
-        RAPTOR Cardinality Gating, and GreenAGI ecological tracking.
-        """
-        return self.reasoner.answer_question(question, max_edges=max_edges)
+    def query(
+        self,
+        question: str,
+        max_edges: int = 5,
+        memory_node_ids: Optional[List[str]] = None
+    ) -> ReasoningResult:
+        return self.reasoner.answer_question(
+            question,
+            max_edges=max_edges,
+            memory_node_ids=memory_node_ids
+        )
 
     def get_distillation_curriculum(self) -> Dict[str, List[HyperEdge]]:
-        """
-        Returns the 3-Phase Large-to-Small LLM Distillation Curriculum:
-        - Phase 1: Dyadic Foundation (|H_e| = 2)
-        - Phase 2: Prime Stride Integration (|H_e| in {3, 5, 7})
-        - Phase 3: High Cardinality Mix (|H_e| >= 4)
-        """
         return self.reasoner.indexer.build_distillation_curriculum()
 
     def export_sa_mlp_features(self) -> List[Dict[str, Any]]:
-        """Exports message-passing-free Structure-Aware MLP (SA-MLP) node feature vectors."""
         return self.reasoner.indexer.export_sa_mlp_features()
 
     def export_webgl_reification(
@@ -112,10 +103,6 @@ class HyperRAG:
         hub_node_id: Optional[str] = None,
         n_limit: int = 300
     ) -> Dict[str, Any]:
-        """
-        Exports the topologically reified subgraph (R_k intermediate tetrahedrons, N_limit <= 300)
-        for WebGL 3D Force-Directed visualization (compatible with reader-math.php).
-        """
         target_hub = hub_node_id or (
             max(self.hyper.nodes.keys(), key=lambda k: self.hyper.nodes[k].connectivity_degree)
             if self.hyper.nodes else ""
@@ -126,7 +113,6 @@ class HyperRAG:
         return payload
 
     def save(self, filepath: str):
-        """Saves the full compiled hyperontology H=(X,E) to JSON."""
         self.hyper.save_json(filepath)
 
     @classmethod
@@ -134,14 +120,12 @@ class HyperRAG:
         cls,
         filepath: str,
         model: str = "intuyt:macro",
-        base_url: str = "http://localhost:11434"
+        base_url: str = "https://comic-hugely-eft.ngrok-free.app"
     ) -> "HyperRAG":
-        """Loads a compiled hyperontology from JSON."""
         hyper = Hyperontology.load_json(filepath)
         return cls(model=model, base_url=base_url, hyperontology=hyper)
 
     def stats(self) -> Dict[str, Any]:
-        """Returns comprehensive topological, number-theoretic, and OEIS A320228 regularity statistics."""
         indexer = self.reasoner.indexer
         reg_info = indexer.enforce_4_regular_expander_check()
         curriculum = indexer.build_distillation_curriculum()
@@ -166,6 +150,10 @@ class HyperRAG:
                 for c in node.categories:
                     if c not in existing.categories:
                         existing.categories.append(c)
+                for lbl in node.labels:
+                    if lbl not in existing.labels:
+                        existing.labels.append(lbl)
+                existing.attributes.update(node.attributes)
                 existing.raptor_layer = max(existing.raptor_layer, node.raptor_layer)
                 if existing.is_boundary:
                     self.hyper.boundary_nodes.add(existing.id)
@@ -174,7 +162,8 @@ class HyperRAG:
 
         for edge in other.edges.values():
             if not self.hyper.get_edge(edge.id):
-                valid_nodes = [nid for nid in edge.nodes if self.hyper.get_node(nid)]
-                if len(valid_nodes) >= 2:
-                    edge.nodes = valid_nodes
+                for nid in edge.nodes:
+                    if not self.hyper.get_node(nid):
+                        self.hyper.add_node(HyperNode(id=nid, name=nid.replace("_", " ").title()))
+                if len(edge.nodes) >= 1:
                     self.hyper.add_edge(edge)
